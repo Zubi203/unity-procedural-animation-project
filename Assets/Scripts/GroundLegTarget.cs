@@ -3,7 +3,7 @@ using UnityEngine;
 public class GroundLegTarget : MonoBehaviour
 {
     RaycastHit hit;
-    [SerializeField] private float raycastHeight = 1f;
+    [SerializeField] private float raycastHeight = 3f;
 
     private Vector3 raycastPoint;
 
