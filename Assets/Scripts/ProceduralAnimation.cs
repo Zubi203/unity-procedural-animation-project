@@ -63,8 +63,8 @@ public class ProceduralAnimation : MonoBehaviour
         {
             for (int i = 0; i < dampedTargets.Count; i++)
             {
-                dampedTargets[i].position = Vector3.Lerp(dampedTargets[i].position, dampMoveTargets[i].position + Vector3.up * (dampedTargetsYOffset), Time.deltaTime * 7f);
-                dampedTargets[i].rotation = Quaternion.RotateTowards(dampedTargets[i].rotation, dampMoveTargets[i].rotation, Time.deltaTime * 500f);
+                dampedTargets[i].position = Vector3.Lerp(dampedTargets[i].position, dampMoveTargets[i].position + Vector3.up * (dampedTargetsYOffset), Time.deltaTime * 15f);
+                dampedTargets[i].rotation = Quaternion.RotateTowards(dampedTargets[i].rotation, dampMoveTargets[i].rotation, Time.deltaTime * 50f);
             }
         }
     }
