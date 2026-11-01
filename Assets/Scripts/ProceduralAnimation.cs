@@ -47,10 +47,11 @@ public class ProceduralAnimation : MonoBehaviour
     {
         CalculateYOffset();
         UpdateLegPositions();
+        UpdateLegRotations();
 
         transform.position = Vector3.Lerp(transform.position, new Vector3(transform.position.x, targetY, transform.position.z), Time.deltaTime * 5f);
 
-        //Quaternion targetRotation = Quaternion.Euler(transform.eulerAngles + (Vector3.right * CalculateRotationX()) + (Vector3.forward * CalculateRotationZ()));
+        //Quaternion targetRotation = Quaternion.Euler(transform.eulerAngles + (Vector3.forward * CalculateRotationX()) + (Vector3.right * CalculateRotationZ()));
 
         //transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, Time.deltaTime * 100f);
         
@@ -266,6 +267,25 @@ public class ProceduralAnimation : MonoBehaviour
         return Mathf.Atan(yDifference / xDifference);
     }
 
+    void UpdateLegRotations()
+    {
+        for(int i = 0; i < IKTargets.Count; i++)
+        {
+            float rotationY = stepTargets[IKTargets[i]].eulerAngles.y;
+            IKTargets[i].eulerAngles = new Vector3(IKTargets[i].eulerAngles.x, rotationY, IKTargets[i].eulerAngles.z);
+            Vector3 targetPos = stepTargets[IKTargets[i]].position;
+            Vector3 startPos = IKTargets[i].position;
+            startPos += new Vector3(0f, footOffsetFromGround, 0f);
+
+            Vector3 rotationDir = targetPos - startPos;
+
+            Quaternion targetRotation = Quaternion.FromToRotation(IKTargets[i].up, -rotationDir.normalized) * IKTargets[i].rotation;
+
+            float speed = 10.0f;
+            IKTargets[i].rotation = Quaternion.Slerp(IKTargets[i].rotation, targetRotation, speed * Time.deltaTime);
+        }
+    }
+
     void UpdateLegPositions()
     {
         for(int i = 0; i < IKTargets.Count; i++)
@@ -285,7 +305,10 @@ public class ProceduralAnimation : MonoBehaviour
                 }  
             }
 
-            if (Vector3.Distance(IKTargets[i].position, stepTargets[IKTargets[i]].position) > stepThreshold)
+            Vector2 currentPos = new Vector2(IKTargets[i].position.x, IKTargets[i].position.z);
+            Vector2 targetPos = new Vector2(stepTargets[IKTargets[i]].position.x, stepTargets[IKTargets[i]].position.z);
+
+            if (Vector3.Distance(currentPos, targetPos) > stepThreshold)
             {
                 if(!isMoving[IKTargets[i]] && OppositeLegGrounded(IKTargets[i]))
                 {

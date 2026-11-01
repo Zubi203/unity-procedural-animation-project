@@ -11,5 +11,11 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Main.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
+    path: Assets/Scenes/Snake.unity
+    guid: 3da8608ed4cc39a40882665fa707dede
+  - enabled: 1
+    path: Assets/Scenes/Humanoid.unity
+    guid: 9cb596af13af6d24cb6757a3c9dfb0fc
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
