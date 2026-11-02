@@ -16,9 +16,8 @@ public class SpiderController : MonoBehaviour
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
         
-        Quaternion targetRotation = Quaternion.Euler(transform.eulerAngles + Vector3.up * horizontalInput);
-        
-        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, Time.deltaTime * rotateSpeed);
+        float rotation = horizontalInput * rotateSpeed * Time.deltaTime;
+        transform.Rotate(0f, rotation, 0f);
 
         transform.position += transform.forward * verticalInput * moveSpeed * Time.deltaTime;
 

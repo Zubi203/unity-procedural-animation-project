@@ -12,6 +12,7 @@ public class ProceduralAnimation : MonoBehaviour
     [SerializeField] private GameObject stepTargetPrefab;
 
     [SerializeField] private Transform headAimTarget;
+    [SerializeField] private Transform bodyTransform;
     [SerializeField] private List<Transform> IKTargets = new List<Transform>();
     [SerializeField] private List<Transform> dampedTargets = new List<Transform>();
     private List<Transform> dampMoveTargets = new List<Transform>();
@@ -49,11 +50,11 @@ public class ProceduralAnimation : MonoBehaviour
         UpdateLegPositions();
         UpdateLegRotations();
 
-        transform.position = Vector3.Lerp(transform.position, new Vector3(transform.position.x, targetY, transform.position.z), Time.deltaTime * 5f);
+        bodyTransform.position = Vector3.Lerp(bodyTransform.position, new Vector3(bodyTransform.position.x, targetY, bodyTransform.position.z), Time.deltaTime * 5f);
 
-        //Quaternion targetRotation = Quaternion.Euler(transform.eulerAngles + (Vector3.forward * CalculateRotationX()) + (Vector3.right * CalculateRotationZ()));
+        //Quaternion targetRotation = Quaternion.Euler(bodyTransform.eulerAngles + (Vector3.forward * CalculateRotationX()) + (Vector3.right * CalculateRotationZ()));
 
-        //transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, Time.deltaTime * 100f);
+        //bodyTransform.rotation = Quaternion.RotateTowards(bodyTransform.rotation, targetRotation, Time.deltaTime * 100f);
         
         if (headAimTarget != null)
         {
@@ -129,14 +130,14 @@ public class ProceduralAnimation : MonoBehaviour
             }
         }
 
-        GameObject _centerTarget = Instantiate(stepTargetPrefab, transform.position, Quaternion.identity);
-        _centerTarget.transform.SetParent(transform, true);
+        GameObject _centerTarget = Instantiate(stepTargetPrefab, bodyTransform.position, Quaternion.identity);
+        _centerTarget.transform.SetParent(bodyTransform, true);
         centerTarget = _centerTarget.transform;
 
         if (headAimTarget != null)
         {
             GameObject _headAimTarget = Instantiate(stepTargetPrefab, headAimTarget.position, Quaternion.identity);
-            _headAimTarget.transform.SetParent(transform, true);
+            _headAimTarget.transform.SetParent(bodyTransform, true);
             lookTarget = _headAimTarget.transform;
         }
 
@@ -144,7 +145,7 @@ public class ProceduralAnimation : MonoBehaviour
         foreach (Transform target in dampedTargets)
         {
             GameObject _dampTarget = new GameObject("TargetPoint");
-            _dampTarget.transform.SetParent(transform, true);
+            _dampTarget.transform.SetParent(bodyTransform, true);
             _dampTarget.transform.position = target.position;
             _dampTarget.transform.rotation = Quaternion.identity;
             dampMoveTargets.Add(_dampTarget.transform);
@@ -217,7 +218,7 @@ public class ProceduralAnimation : MonoBehaviour
 
         foreach (Transform ikTarget in IKTargets)
         {
-            if (stepTargets[ikTarget].localPosition.y < 0f)
+            if (stepTargets[ikTarget].localPosition.z < 0f)
             {
                 frontTargets.Add(stepTargets[ikTarget]);
             }
@@ -233,14 +234,14 @@ public class ProceduralAnimation : MonoBehaviour
         float avgFrontX = 0f;
         foreach (Transform target in frontTargets)
         {
-            avgFrontX += target.localPosition.y;
+            avgFrontX += target.localPosition.z;
         }
         avgFrontX /= frontTargets.Count;
 
         float avgBackX = 0f;
         foreach (Transform target in backTargets)
         {
-            avgBackX += target.localPosition.y;
+            avgBackX += target.localPosition.z;
         }
         avgBackX /= backTargets.Count;
 
@@ -251,14 +252,14 @@ public class ProceduralAnimation : MonoBehaviour
         float avgFrontY = 0f;
         foreach (Transform target in frontTargets)
         {
-            avgFrontY += target.localPosition.z;
+            avgFrontY += target.localPosition.x;
         }
         avgFrontY /= frontTargets.Count;
 
         float avgBackY = 0f;
         foreach (Transform target in backTargets)
         {
-            avgBackY += target.localPosition.z;
+            avgBackY += target.localPosition.x;
         }
         avgBackY /= backTargets.Count;
 
