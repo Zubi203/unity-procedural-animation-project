@@ -20,14 +20,15 @@ public class ProceduralAnimation : MonoBehaviour
 
     [SerializeField] private float afterStepWaitTime = 0.2f;
     private Dictionary<Transform, Transform> stepTargets = new Dictionary<Transform, Transform>();
+    private Dictionary<Transform, Vector3> groundRootPoints = new Dictionary<Transform, Vector3>();
     private List<Transform> mainLegs = new List<Transform>();
     private List<Transform> oppositeLegs = new List<Transform>();
     private Dictionary<Transform, bool> isMoving = new Dictionary<Transform, bool>();
+    private Dictionary<Transform, bool> isGrounded = new Dictionary<Transform, bool>();
 
     private Dictionary<Transform, float> YOffsets = new Dictionary<Transform, float>();
     private float baseYOffset;
     private float averageDeltaYBetweenTargets;
-    private float targetY;
     private Transform centerTarget;
     private Transform lookTarget;
 
@@ -41,20 +42,18 @@ public class ProceduralAnimation : MonoBehaviour
     void Start()
     {
         CreateTargetPoints();
-        baseYOffset = transform.position.y;
+        baseYOffset = bodyTransform.position.y;
     }
 
     void FixedUpdate()
     {
-        CalculateYOffset();
         UpdateLegPositions();
         UpdateLegRotations();
 
-        bodyTransform.position = Vector3.Lerp(bodyTransform.position, new Vector3(bodyTransform.position.x, targetY, bodyTransform.position.z), Time.deltaTime * 5f);
+        bodyTransform.position = Vector3.Lerp(bodyTransform.position, CalculateBodyPos(), Time.deltaTime * 7f);
 
-        //Quaternion targetRotation = Quaternion.Euler(bodyTransform.eulerAngles + (Vector3.forward * CalculateRotationX()) + (Vector3.right * CalculateRotationZ()));
-
-        //bodyTransform.rotation = Quaternion.RotateTowards(bodyTransform.rotation, targetRotation, Time.deltaTime * 100f);
+        //Quaternion targetRotation = Quaternion.Euler(bodyTransform.eulerAngles + (Vector3.right * CalculateRotationZ()));
+        //bodyTransform.rotation = Quaternion.RotateTowards(bodyTransform.rotation, targetRotation, Time.deltaTime * 5f);
         
         if (headAimTarget != null)
         {
@@ -76,7 +75,23 @@ public class ProceduralAnimation : MonoBehaviour
         lookTarget.position = targetPos;
     }
 
-    void CalculateYOffset()
+    Vector3 CalculateBodyPos()
+    {
+        float centroidX = 0f;
+        float centroidZ = 0f;
+        for (int i = 0; i < IKTargets.Count; i++)
+        {
+            centroidX += IKTargets[i].position.x;
+            centroidZ += IKTargets[i].position.z;
+        }
+        centroidX /= IKTargets.Count;
+        centroidZ /= IKTargets.Count;
+
+        return new Vector3(centroidX, CalculateYOffset(), centroidZ);
+
+    }
+
+    float CalculateYOffset()
     {
         float highestY = 0f;
         for (int i = 0; i < IKTargets.Count; i++)
@@ -94,7 +109,7 @@ public class ProceduralAnimation : MonoBehaviour
             highestY = centerYDist;
         }
 
-        targetY = Mathf.Clamp(baseYOffset + highestY, baseYOffset, baseYOffset * 1000f);
+        return Mathf.Clamp(baseYOffset + highestY, baseYOffset, baseYOffset * 1000f);
     }
 
     void CreateTargetPoints()
@@ -108,13 +123,17 @@ public class ProceduralAnimation : MonoBehaviour
         isMoving.Clear();
         mainLegs.Clear();
         oppositeLegs.Clear();
+        groundRootPoints.Clear();
+        isGrounded.Clear();
 
         for (int i = 0; i < IKTargets.Count; i++)
         {
             GameObject target = Instantiate(stepTargetPrefab, IKTargets[i].position, Quaternion.identity);
             target.transform.SetParent(transform, true);
             stepTargets.Add(IKTargets[i], target.transform);
+            groundRootPoints.Add(IKTargets[i], target.transform.position);
             isMoving.Add(IKTargets[i], false);
+            isGrounded.Add(IKTargets[i], true);
             YOffsets.Add(IKTargets[i], target.transform.position.y);
 
             if (!oppositeLegs.Contains(IKTargets[i]) && !mainLegs.Contains(IKTargets[i]))
@@ -137,7 +156,7 @@ public class ProceduralAnimation : MonoBehaviour
         if (headAimTarget != null)
         {
             GameObject _headAimTarget = Instantiate(stepTargetPrefab, headAimTarget.position, Quaternion.identity);
-            _headAimTarget.transform.SetParent(bodyTransform, true);
+            _headAimTarget.transform.SetParent(transform, true);
             lookTarget = _headAimTarget.transform;
         }
 
@@ -145,7 +164,7 @@ public class ProceduralAnimation : MonoBehaviour
         foreach (Transform target in dampedTargets)
         {
             GameObject _dampTarget = new GameObject("TargetPoint");
-            _dampTarget.transform.SetParent(bodyTransform, true);
+            _dampTarget.transform.SetParent(transform, true);
             _dampTarget.transform.position = target.position;
             _dampTarget.transform.rotation = Quaternion.identity;
             dampMoveTargets.Add(_dampTarget.transform);
@@ -156,131 +175,57 @@ public class ProceduralAnimation : MonoBehaviour
 
     float CalculateRotationZ()
     {
-        List<Transform> leftTargets = new List<Transform>();
-        List<Transform> rightTargets = new List<Transform>();
-
-        foreach (Transform ikTarget in IKTargets)
+        float centroidLeftX = 0f;
+        float centroidLeftY = 0f;
+        float centroidLeftZ = 0f;
+        float centroidRightX = 0f;
+        float centroidRightY = 0f;
+        float centroidRightZ = 0f;
+        for (int i = 0; i < mainLegs.Count; i++)
         {
-            if (stepTargets[ikTarget].localPosition.x > 0f)
-            {
-                rightTargets.Add(stepTargets[ikTarget]);
-            }
-            else
-            {
-                leftTargets.Add(stepTargets[ikTarget]);
-            }
+            centroidLeftX += mainLegs[i].position.x;
+            centroidLeftY += mainLegs[i].position.y;
+            centroidLeftZ += mainLegs[i].position.z;
+
+            centroidRightX += oppositeLegs[i].position.x;
+            centroidRightY += oppositeLegs[i].position.y;
+            centroidRightZ += oppositeLegs[i].position.z;
         }
+        centroidLeftX /= mainLegs.Count;
+        centroidLeftY /= mainLegs.Count;
+        centroidLeftZ /= mainLegs.Count;
 
-        if (leftTargets.Count == 0) {return 0f;}
-        if (rightTargets.Count == 0) {return 0f;}
+        centroidRightX /= oppositeLegs.Count;
+        centroidRightY /= oppositeLegs.Count;
+        centroidRightZ /= oppositeLegs.Count;
 
-        float avgLeftX = 0f;
-        foreach (Transform target in leftTargets)
-        {
-            avgLeftX += target.localPosition.x;
-        }
-        avgLeftX /= leftTargets.Count;
+        Vector3 rightPos = new Vector3(centroidRightX, centroidRightY, centroidRightZ);
+        Vector3 leftPos = new Vector3(centroidLeftX, centroidLeftY, centroidLeftZ);
 
-        float avgRightX = 0f;
-        foreach (Transform target in rightTargets)
-        {
-            avgRightX += target.localPosition.x;
-        }
-        avgRightX /= rightTargets.Count;
-
-        float xDifference = avgRightX - avgLeftX;
-
-
-
-        float avgLeftY = 0f;
-        foreach (Transform target in leftTargets)
-        {
-            avgLeftY += target.localPosition.z;
-        }
-        avgLeftY /= leftTargets.Count;
-
-        float avgRightY = 0f;
-        foreach (Transform target in rightTargets)
-        {
-            avgRightY += target.localPosition.z;
-        }
-        avgRightY /= rightTargets.Count;
-
-        float yDifference = avgRightY - avgLeftY;
-
-        return Mathf.Atan(yDifference / xDifference);
+        Vector3 rotationVector = (leftPos - rightPos).normalized;
+        rotationVector = new Vector3(rotationVector.x, rotationVector.y, 0f);
+        return Mathf.Atan2(rotationVector.y, rotationVector.x) * Mathf.Rad2Deg;
     }
 
     float CalculateRotationX()
     {
-        List<Transform> frontTargets = new List<Transform>();
-        List<Transform> backTargets = new List<Transform>();
-
-        foreach (Transform ikTarget in IKTargets)
-        {
-            if (stepTargets[ikTarget].localPosition.z < 0f)
-            {
-                frontTargets.Add(stepTargets[ikTarget]);
-            }
-            else
-            {
-                backTargets.Add(stepTargets[ikTarget]);
-            }
-        }
-
-        if (frontTargets.Count == 0) {return 0f;}
-        if (backTargets.Count == 0) {return 0f;}
-
-        float avgFrontX = 0f;
-        foreach (Transform target in frontTargets)
-        {
-            avgFrontX += target.localPosition.z;
-        }
-        avgFrontX /= frontTargets.Count;
-
-        float avgBackX = 0f;
-        foreach (Transform target in backTargets)
-        {
-            avgBackX += target.localPosition.z;
-        }
-        avgBackX /= backTargets.Count;
-
-        float xDifference = avgFrontX - avgBackX;
-
-
-
-        float avgFrontY = 0f;
-        foreach (Transform target in frontTargets)
-        {
-            avgFrontY += target.localPosition.x;
-        }
-        avgFrontY /= frontTargets.Count;
-
-        float avgBackY = 0f;
-        foreach (Transform target in backTargets)
-        {
-            avgBackY += target.localPosition.x;
-        }
-        avgBackY /= backTargets.Count;
-
-        float yDifference = avgFrontY - avgBackY;
-
-        return Mathf.Atan(yDifference / xDifference);
+        return 0f;
     }
 
     void UpdateLegRotations()
     {
         for(int i = 0; i < IKTargets.Count; i++)
         {
+
             float rotationY = stepTargets[IKTargets[i]].eulerAngles.y;
             IKTargets[i].eulerAngles = new Vector3(IKTargets[i].eulerAngles.x, rotationY, IKTargets[i].eulerAngles.z);
-            Vector3 targetPos = stepTargets[IKTargets[i]].position;
+            Vector3 targetPos = (isGrounded[IKTargets[i]]) ? groundRootPoints[IKTargets[i]] : stepTargets[IKTargets[i]].position;
             Vector3 startPos = IKTargets[i].position;
             startPos += new Vector3(0f, footOffsetFromGround, 0f);
 
             Vector3 rotationDir = targetPos - startPos;
 
-            Quaternion targetRotation = Quaternion.FromToRotation(IKTargets[i].up, -rotationDir.normalized) * IKTargets[i].rotation;
+            Quaternion targetRotation = Quaternion.FromToRotation(IKTargets[i].up, rotationDir.normalized) * IKTargets[i].rotation;
 
             float speed = 10.0f;
             IKTargets[i].rotation = Quaternion.Slerp(IKTargets[i].rotation, targetRotation, speed * Time.deltaTime);
@@ -362,6 +307,7 @@ public class ProceduralAnimation : MonoBehaviour
     IEnumerator MoveLeg(int index, Vector3 targetPos)
     {
         isMoving[IKTargets[index]] = true;
+        isGrounded[IKTargets[index]] = false;
 
         Vector3 startPos = IKTargets[index].position;
 
@@ -402,6 +348,8 @@ public class ProceduralAnimation : MonoBehaviour
         }
 
         IKTargets[index].position = targetPos;
+        isGrounded[IKTargets[index]] = true;
+        groundRootPoints[IKTargets[index]] = targetPos - new Vector3(0f, footOffsetFromGround, 0f);
 
         yield return new WaitForSeconds(afterStepWaitTime);
         isMoving[IKTargets[index]] = false;
@@ -424,6 +372,21 @@ public class ProceduralAnimation : MonoBehaviour
         int targetIndex = IKTargets.IndexOf(oppositeLegs[mainLegIndex]);
         Transform target = stepTargets[oppositeLegs[mainLegIndex]];
         StartCoroutine(MoveLeg(targetIndex, target.position));
+    }
+
+    Vector3 ClampAngleBetweenVectors(Vector3 fromDir, Vector3 toDir, float maxAngle)
+    {
+        // find the rotation step between the two vectors
+        Quaternion rotationDiff = Quaternion.FromToRotation(fromDir, toDir);
+        rotationDiff.ToAngleAxis(out float angle, out Vector3 axis);
+
+        // if the angle exceeds the threshold, clamp it
+        if (angle > maxAngle)
+        {
+            return Quaternion.AngleAxis(maxAngle, axis) * fromDir;
+        }
+
+        return toDir;
     }
 }
  
