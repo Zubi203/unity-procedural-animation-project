@@ -36,14 +36,17 @@ public class HumanController : MonoBehaviour
         float dirX = Input.GetAxis("Horizontal");
         float dirZ = Input.GetAxis("Vertical");
 
-        Vector3 dir = new Vector3(dirX, 0f, dirZ).normalized;
+        Vector3 dir = (cameraAnchor.right * dirX + cameraAnchor.forward * dirZ).normalized;
 
         if (dir.magnitude > 0.0)
         {
             facingDir = dir;
         }
 
-        rb.linearVelocity = dir * moveSpeed;
+        Vector3 moveVector = dir * moveSpeed;
+        moveVector.y = rb.linearVelocity.y;
+
+        rb.linearVelocity = moveVector;
 
         if (model == null) return;
 
