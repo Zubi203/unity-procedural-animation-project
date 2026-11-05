@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class ApproachState : EnvironmentInteractionState
 {
-    float riseDistanceThreshold = 50f;
+    float riseDistanceThreshold = 70f;
     float lerpDuration = 5.0f;
     float resetDuration = 3.0f;
     float IKConstraintTargetWeight = 0.3f;

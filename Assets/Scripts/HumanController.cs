@@ -44,9 +44,8 @@ public class HumanController : MonoBehaviour
         }
 
         Vector3 moveVector = dir * moveSpeed;
-        moveVector.y = rb.linearVelocity.y;
 
-        rb.linearVelocity = moveVector;
+        rb.linearVelocity = new Vector3(moveVector.x, rb.linearVelocity.y, moveVector.z);
 
         if (model == null) return;
 

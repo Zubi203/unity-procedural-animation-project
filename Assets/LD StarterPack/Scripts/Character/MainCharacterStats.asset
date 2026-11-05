@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8d0d7f5a6c81654b961f2abb2b792a0, type: 3}
+  m_Name: MainCharacterStats
+  m_EditorClassIdentifier: 
+  moveSpeed: 3
+  sprintSpeed: 5
+  crouchSpeed: 1.5
+  climbSpeed: 5
+  jumpHeight: 1.5
+  gravity: -10
+  airControl: 3
+  standHeight: 1.8
+  crouchHeight: 1.25
+  crouchTransitionSpeed: 8
+  maxSlopeAngle: 50
+  slideGravity: 10
+  mantleMinHeight: 1.2
+  mantleMaxHeight: 2.1
+  mantleForwardCheck: 0.7
+  mantleTopCheck: 1.2
+  mantleMoveSpeed: 7

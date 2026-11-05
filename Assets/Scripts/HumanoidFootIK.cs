@@ -11,6 +11,8 @@ public class HumanoidFootIK : MonoBehaviour
     private Transform rightFoot;
     private Transform leftKnee;
     private Transform rightKnee;
+    private Transform hip;
+    float hipYOffset;
 
     void Awake()
     {
@@ -19,6 +21,14 @@ public class HumanoidFootIK : MonoBehaviour
         rightFoot = anim.GetBoneTransform(HumanBodyBones.RightFoot);
         leftKnee = anim.GetBoneTransform(HumanBodyBones.LeftLowerLeg);
         rightKnee = anim.GetBoneTransform(HumanBodyBones.RightLowerLeg);
+        hip = anim.GetBoneTransform(HumanBodyBones.Hips);
+
+        RaycastHit hit;
+        if (Physics.Raycast(hip.position, -Vector3.up, out hit, Mathf.Infinity))
+        {
+            hipYOffset = Vector3.Distance(hip.position, hit.point);
+        }
+         
     }
 
 
@@ -47,6 +57,32 @@ public class HumanoidFootIK : MonoBehaviour
         return footRotation;
     }
 
+    Vector3 SetHipOffset()
+    {
+        Vector3 hipPosition = hip.position;
+        Vector3 lowestFootPosition;
+        Vector3 leftFootGroundPos = leftFoot.position;
+        Vector3 rightFootGroundPos = rightFoot.position;
+
+        RaycastHit rightHit;
+        if (Physics.Raycast(rightKnee.position, -Vector3.up, out rightHit, 2000f))
+        {
+            rightFootGroundPos = rightHit.point;
+        }
+
+        RaycastHit leftHit;
+        if (Physics.Raycast(leftKnee.position, -Vector3.up, out leftHit, 2000f))
+        {
+            leftFootGroundPos = leftHit.point;
+        }
+
+        lowestFootPosition = (leftFootGroundPos.y < rightFootGroundPos.y) ? leftFootGroundPos : rightFootGroundPos;
+
+        hipPosition = new Vector3(hipPosition.x, lowestFootPosition.y + hipYOffset, hipPosition.z);
+
+        return hipPosition;
+    }
+
     void OnAnimatorIK(int layerIndex)
     {
         anim.SetIKPositionWeight(AvatarIKGoal.LeftFoot, 1f);
@@ -54,6 +90,8 @@ public class HumanoidFootIK : MonoBehaviour
 
         anim.SetIKPositionWeight(AvatarIKGoal.RightFoot, 1f);
         anim.SetIKPosition(AvatarIKGoal.RightFoot, SetFootPosition(rightFoot, rightKnee));
+
+        hip.position = SetHipOffset();
 
         anim.SetIKRotationWeight(AvatarIKGoal.LeftFoot, 0.6f);
         anim.SetIKRotation(AvatarIKGoal.LeftFoot, SetFootRotation(leftFoot, leftKnee));

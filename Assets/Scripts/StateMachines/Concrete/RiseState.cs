@@ -7,7 +7,7 @@ public class RiseState : EnvironmentInteractionState
     float RotationConstraintTargetWeight = 1f;
     float rotationSpeed = 1000f;
     LayerMask interactableLayer = LayerMask.GetMask("Interactable");
-    float maxRaycastDistance = 50f;
+    float maxRaycastDistance = 200f;
     Quaternion targetHandRotation;
     float stateDuration = 2.0f;
     float touchDistanceThreshold = 5f;
@@ -35,7 +35,7 @@ public class RiseState : EnvironmentInteractionState
         elapsedTime += Time.deltaTime;
 
         CalculateTargetHandRotation();
-        Context.InteractionPointYOffset = Context.currentShoulder.position.y;
+        Context.InteractionPointYOffset = Context.ClosestPointOnColliderFromShoulder.y;
         float timeElapsedPercent = elapsedTime / lerpDuration;
 
         Context.currentRotationConstraint.weight = Mathf.Lerp(Context.currentRotationConstraint.weight, RotationConstraintTargetWeight, timeElapsedPercent);

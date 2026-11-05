@@ -35,7 +35,6 @@ public class EnvironmentInteractionContext
         _leftFingersRig = leftFingersRig;
         _rightFingersRig = rightFingersRig;
 
-        CharacterShoulderHeight = _leftHandIKConstraint.data.root.transform.position.y;
         _leftOriginalTargetPosition = _leftHandIKConstraint.data.target.transform.localPosition;
         _rightOriginalTargetPosition = _rightHandIKConstraint.data.target.transform.localPosition;
         OriginalTargetRotation = _leftHandIKConstraint.data.target.transform.rotation;
@@ -51,6 +50,7 @@ public class EnvironmentInteractionContext
     public CapsuleCollider RootCollider => _collider;
     public Transform RootTransform => _rootTransform;
     public float ColliderCenterY => RootCollider.center.y + 130f;
+    public float CharacterShoulderHeight => _leftHandIKConstraint.data.root.transform.position.y;
 
     public Collider currentIntersectingCollider {get; set;}
     public TwoBoneIKConstraint currentIKConstraint {get; private set;}
@@ -61,7 +61,6 @@ public class EnvironmentInteractionContext
     public Transform currentShoulder {get; private set;}
     public EBodySide currentSide {get; private set;}
     public Vector3 ClosestPointOnColliderFromShoulder {get; set;} = Vector3.positiveInfinity;
-    public float CharacterShoulderHeight {get; private set;}
     public float InteractionPointYOffset {get; set;}
     public Quaternion OriginalTargetRotation {get; private set;}
     public float LowestDistance {get; set;} = Mathf.Infinity;
