@@ -4,9 +4,10 @@ public class ApproachState : EnvironmentInteractionState
 {
     float riseDistanceThreshold = 50f;
     float lerpDuration = 5.0f;
-    float resetDuration = 2.0f;
-    float IKConstraintTargetWeight = 0.5f;
+    float resetDuration = 3.0f;
+    float IKConstraintTargetWeight = 0.3f;
     float RotationConstraintTargetWeight = 0.7f;
+    float FingerConstraintTargetWeight = 0.7f;
     float rotationSpeed = 500f;
     float elapsedTime = 0.0f;
 
@@ -33,10 +34,11 @@ public class ApproachState : EnvironmentInteractionState
         Context.InteractionPointYOffset = Context.ColliderCenterY;
         float timeElapsedPercent = elapsedTime / lerpDuration;
 
-        Quaternion targetRotation = Quaternion.LookRotation(-Vector3.up, Context.RootTransform.forward);
+        Quaternion targetRotation = Quaternion.LookRotation(-Vector3.up, Context.RootTransform.up);
         Context.currentRotationConstraint.weight = Mathf.Lerp(Context.currentRotationConstraint.weight, RotationConstraintTargetWeight, timeElapsedPercent);
         Context.currentIKTarget.rotation = Quaternion.RotateTowards(Context.currentIKTarget.rotation, targetRotation, rotationSpeed * Time.deltaTime);
         Context.currentIKConstraint.weight = Mathf.Lerp(Context.currentIKConstraint.weight, IKConstraintTargetWeight, timeElapsedPercent);
+        Context.currentFingerRig.weight = Mathf.Lerp(Context.currentFingerRig.weight, FingerConstraintTargetWeight, timeElapsedPercent);
     }
 
     public override EnvironmentInteractionStateMachine.EEnvironmentInteractionState GetNextState()

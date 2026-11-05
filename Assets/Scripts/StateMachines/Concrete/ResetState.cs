@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class ResetState : EnvironmentInteractionState
 {
-    private float lerpDuration = 10.0f;
-    private float resetDuration = 2.0f;
+    private float lerpDuration = 2f;
+    private float resetDuration = 2f;
     private float rotateSpeed = 500f;
     private float elapsedTime = 0.0f;
 
@@ -34,6 +34,8 @@ public class ResetState : EnvironmentInteractionState
         Context.currentIKConstraint.weight = Mathf.Lerp(Context.currentIKConstraint.weight, 0.0f, timeElapsedPercent);
 
         Context.currentRotationConstraint.weight = Mathf.Lerp(Context.currentRotationConstraint.weight, 0.0f, timeElapsedPercent);
+
+        Context.currentFingerRig.weight = Mathf.Lerp(Context.currentFingerRig.weight, 0.0f, timeElapsedPercent);
 
         Context.currentIKTarget.localPosition = Vector3.Lerp(Context.currentIKTarget.localPosition, Context.currentOriginalTargetPosition, timeElapsedPercent);
 

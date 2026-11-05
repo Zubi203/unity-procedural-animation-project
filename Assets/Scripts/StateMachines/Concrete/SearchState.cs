@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class SearchState : EnvironmentInteractionState
 {
-    float approachDistanceThreshold = 200f;
+    float approachDistanceThreshold = 170f;
     public SearchState(EnvironmentInteractionContext context, 
     EnvironmentInteractionStateMachine.EEnvironmentInteractionState estate) : base (context, estate)
     {

@@ -4,7 +4,7 @@ public abstract class EnvironmentInteractionState : BaseState<EnvironmentInterac
 {
     protected EnvironmentInteractionContext Context;
     protected float elapsedTime = 0.0f;
-    float movingAwayOffset = 0.5f;
+    float movingAwayOffset = 20f;
     bool shouldReset;
 
     public EnvironmentInteractionState(EnvironmentInteractionContext context, 
@@ -30,9 +30,9 @@ public abstract class EnvironmentInteractionState : BaseState<EnvironmentInterac
         bool isPlayerStopped = Context.RootRigidbody.linearVelocity == Vector3.zero;
         bool isMovingAway = CheckIsMovingAway();
         bool hasBadAngle = CheckBadAngle();
-        bool isPlayerJumping = Mathf.Round(Context.RootRigidbody.linearVelocity.y) > 1;
+        //bool isPlayerJumping = Mathf.Round(Context.RootRigidbody.linearVelocity.y) > 1;
 
-        if (isPlayerStopped || isMovingAway || hasBadAngle || isPlayerJumping)
+        if (isPlayerStopped || isMovingAway || hasBadAngle)
         {
             Context.LowestDistance = Mathf.Infinity;
             return true;
@@ -49,10 +49,12 @@ public abstract class EnvironmentInteractionState : BaseState<EnvironmentInterac
         }
 
         Vector3 targetDir = Context.ClosestPointOnColliderFromShoulder - Context.currentShoulder.position;
+        targetDir = new Vector3(targetDir.x, 0f, targetDir.z);
         Vector3 shoulderDir = (Context.currentSide == EnvironmentInteractionContext.EBodySide.Right) ?
         Context.RootTransform.right : -Context.RootTransform.right;
+        shoulderDir = new Vector3(shoulderDir.x, 0f, shoulderDir.z);
 
-        float dotProduct = Vector3.Dot(targetDir, shoulderDir);
+        float dotProduct = Vector3.Dot(targetDir.normalized, shoulderDir.normalized);
 
         if (dotProduct < 0)
         {

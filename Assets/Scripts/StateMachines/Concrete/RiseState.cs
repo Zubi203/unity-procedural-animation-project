@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class RiseState : EnvironmentInteractionState
 {
-    float lerpDuration = 5.0f;
+    float lerpDuration = 8.0f;
     float IKConstraintTargetWeight = 1f;
     float RotationConstraintTargetWeight = 1f;
     float rotationSpeed = 1000f;
@@ -12,6 +12,7 @@ public class RiseState : EnvironmentInteractionState
     float stateDuration = 2.0f;
     float touchDistanceThreshold = 5f;
     float elapsedTime = 0.0f;
+    float FingerConstraintTargetWeight = 1f;
 
     public RiseState(EnvironmentInteractionContext context, 
     EnvironmentInteractionStateMachine.EEnvironmentInteractionState estate) : base (context, estate)
@@ -40,6 +41,7 @@ public class RiseState : EnvironmentInteractionState
         Context.currentRotationConstraint.weight = Mathf.Lerp(Context.currentRotationConstraint.weight, RotationConstraintTargetWeight, timeElapsedPercent);
         Context.currentIKTarget.rotation = Quaternion.RotateTowards(Context.currentIKTarget.rotation, targetHandRotation, rotationSpeed * Time.deltaTime);
         Context.currentIKConstraint.weight = Mathf.Lerp(Context.currentIKConstraint.weight, IKConstraintTargetWeight, timeElapsedPercent);
+        Context.currentFingerRig.weight = Mathf.Lerp(Context.currentFingerRig.weight, FingerConstraintTargetWeight, timeElapsedPercent);
     }
 
     private void CalculateTargetHandRotation()

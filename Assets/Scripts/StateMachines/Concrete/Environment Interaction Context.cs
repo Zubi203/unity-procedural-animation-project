@@ -18,10 +18,12 @@ public class EnvironmentInteractionContext
     private Transform _rootTransform;
     private Vector3 _leftOriginalTargetPosition;
     private Vector3 _rightOriginalTargetPosition;
+    private Rig _leftFingersRig;
+    private Rig _rightFingersRig;
 
     public EnvironmentInteractionContext(TwoBoneIKConstraint leftHandIKConstraint, TwoBoneIKConstraint rightHandIKConstraint, 
     MultiRotationConstraint leftHandRotationConstraint, MultiRotationConstraint rightHandRotationConstraint, 
-    Rigidbody rb, CapsuleCollider collider, Transform rootTransform)
+    Rigidbody rb, CapsuleCollider collider, Transform rootTransform, Rig leftFingersRig, Rig rightFingersRig)
     {
         _leftHandIKConstraint = leftHandIKConstraint;
         _rightHandIKConstraint = rightHandIKConstraint;
@@ -30,6 +32,8 @@ public class EnvironmentInteractionContext
         _rb = rb;
         _collider = collider;
         _rootTransform = rootTransform;
+        _leftFingersRig = leftFingersRig;
+        _rightFingersRig = rightFingersRig;
 
         CharacterShoulderHeight = _leftHandIKConstraint.data.root.transform.position.y;
         _leftOriginalTargetPosition = _leftHandIKConstraint.data.target.transform.localPosition;
@@ -46,10 +50,11 @@ public class EnvironmentInteractionContext
     public Rigidbody RootRigidbody => _rb;
     public CapsuleCollider RootCollider => _collider;
     public Transform RootTransform => _rootTransform;
-    public float ColliderCenterY => RootCollider.center.y + 120f;
+    public float ColliderCenterY => RootCollider.center.y + 130f;
 
     public Collider currentIntersectingCollider {get; set;}
     public TwoBoneIKConstraint currentIKConstraint {get; private set;}
+    public Rig currentFingerRig {get; private set;}
     public MultiRotationConstraint currentRotationConstraint {get; private set;}
     public Transform currentIKTarget {get; private set;}
     public Vector3 currentOriginalTargetPosition {get; private set;}
@@ -74,6 +79,7 @@ public class EnvironmentInteractionContext
             currentIKConstraint = _leftHandIKConstraint;
             currentRotationConstraint = _leftHandRotationConstraint;
             currentOriginalTargetPosition = _leftOriginalTargetPosition;
+            currentFingerRig = _leftFingersRig;
         }
         else
         {
@@ -81,6 +87,7 @@ public class EnvironmentInteractionContext
             currentIKConstraint = _rightHandIKConstraint;
             currentRotationConstraint = _rightHandRotationConstraint;
             currentOriginalTargetPosition = _rightOriginalTargetPosition;
+            currentFingerRig = _rightFingersRig;
         }
 
         currentIKTarget = currentIKConstraint.data.target;

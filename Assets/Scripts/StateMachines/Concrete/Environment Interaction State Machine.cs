@@ -23,13 +23,15 @@ public class EnvironmentInteractionStateMachine : StateMachine<EnvironmentIntera
     [SerializeField] private Rigidbody rb;
     [SerializeField] private CapsuleCollider collider;
     [SerializeField] private Transform rootTransform;
+    [SerializeField] private Rig leftFingersRig;
+    [SerializeField] private Rig rightFingersRig;
 
     private void Awake()
     {
         ValidateConstraints();
 
         context = new EnvironmentInteractionContext(leftHandIKConstraint, rightHandIKConstraint, leftHandRotationConstraint, 
-        rightHandRotationConstraint, rb, collider, rootTransform);
+        rightHandRotationConstraint, rb, collider, rootTransform, leftFingersRig, rightFingersRig);
 
         InitializeStates();
         ConstructEnvironmentDetectionCollider();
@@ -44,6 +46,8 @@ public class EnvironmentInteractionStateMachine : StateMachine<EnvironmentIntera
         Assert.IsNotNull(rb, "Rigidbody is not assigned");
         Assert.IsNotNull(collider, "Capsule collider is not assigned");
         Assert.IsNotNull(rootTransform, "Root transform is not assigned");
+        Assert.IsNotNull(leftFingersRig, "left finger rig is not assigned");
+        Assert.IsNotNull(rightFingersRig, "right finger rig is not assigned");
     }
 
     private void InitializeStates()
