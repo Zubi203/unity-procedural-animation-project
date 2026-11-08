@@ -13,11 +13,11 @@ A Unity tech demo made to practice and showcase procedural animation techniques.
 
 ### Credits
 - This project was made in the Unity engine and coded entirely in C#
-- Snake model:
-- Environment assets:
-- Spider model:
-- Human model and animations:
-- Music: 
+- Snake model: https://sketchfab.com/3d-models/cc0-japanese-pit-viper-5ba0e26d08aa4228bcfee60d0c63cf6a
+- Environment assets: https://quaternius.itch.io/stylized-nature-megakit
+- Spider model: https://quaternius.itch.io/animated-easy-enemies
+- Human model and animations: https://quaternius.itch.io/universal-animation-library
+- Music: https://pizzadoggy.itch.io/cozy-tunes
 
 ### Contact
 - Discord: @zubi_dev
