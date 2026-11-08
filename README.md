@@ -1,7 +1,7 @@
 <img width="621" height="343" alt="Screenshot 2026-11-08 110406" src="https://github.com/user-attachments/assets/2e5a9cae-3c5d-4bc8-8e3b-0dc174e0e95b" />
 
 # Procedural Creatures
-A Unity tech demo made to practice and showcase procedural animation techniques.
+A Unity tech demo made to practice and showcase procedural animation techniques. The demo can be played on itch.io at this link: https://zubi-dev.itch.io/procedural-creatures
 
 ### Project Features
 - A procedural spider animation script that simulates insect like locomotion. This script is flexible and can be used to animate any multi-legged model that has 4 or more legs.
